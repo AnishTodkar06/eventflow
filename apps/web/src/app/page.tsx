@@ -1,31 +1,50 @@
 import Link from "next/link";
 import EventCard from "@/components/EventCard";
+import { Suspense } from "react";
 
-const events = [
-  {
-    id: "evt-001",
-    title: "Sunset Music Festival",
-    date: "2026-12-15",
-    location: "Mumbai",
-    price: 999,
-  },
-  {
-    id: "evt-002",
-    title: "Tech Innovators Conference",
-    date: "2026-12-20",
-    location: "Pune",
-    price: 1499,
-  },
-  {
-    id: "evt-003",
-    title: "Standup Comedy Night",
-    date: "2027-01-10",
-    location: "Hyderabad",
-    price: 499,
+type Event = {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  price: number;
+};
+
+async function UpcomingEvents() {
+  const apiBaseUrl = process.env.API_BASE_URL;
+  if (!apiBaseUrl) {
+    throw new Error("API_BASE_URL is not configured");
   }
-];
+  const response = await fetch(`${apiBaseUrl}/api/events`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch events: HTTP ${response.status}`);
+  }
+  const events: Event[] = await response.json();
+  return (
+    <section className="w-full">
+      <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        Upcoming Events
+      </h2>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {events.map((event) => (
+          <EventCard
+            key={event.id}
+            title={event.title}
+            date={event.date}
+            location={event.location}
+            price={event.price}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
 export default function Home() {
+
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-6xl flex-col items-center justify-start gap-10 py-16 px-6 sm:px-16 bg-white dark:bg-black ">
@@ -42,23 +61,9 @@ export default function Home() {
             Explore Events
           </Link>
         </div>
-
-          <section className="w-full">
-            <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-              Upcoming Events
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {events.map((event) => (
-                <EventCard
-                  key={event.id}
-                  title={event.title}
-                  date={event.date}
-                  location={event.location}
-                  price={event.price}
-                />
-              ))}
-            </div>
-          </section>
+        <Suspense fallback={<p>Loading upcoming events...</p>}>
+          <UpcomingEvents />
+        </Suspense>
       </main>
     </div>
   );
