@@ -1,0 +1,17 @@
+import { test, expect } from "@playwright/test";
+
+test('user can navigate from an event card to its details', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: /Sunset Music Festival/ }).click();
+    await expect(page).toHaveURL(/\/events\/evt-001$/);
+    await expect(page.getByRole('heading', { name: 'Sunset Music Festival' })).toBeVisible();
+});
+
+test('user sees a not-found page for an invalid event', async ({ page }) => {
+  await page.goto('/events/evt-999');
+  await expect(page.getByRole('heading', { name: 'Event Not Found' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Back to Events' })).toBeVisible();
+  await page.getByRole('link', { name: 'Back to Events' }).click();
+  await expect(page).toHaveURL('/');
+  await expect(page.getByRole('heading', { name: 'Welcome to EventFlow' })).toBeVisible();
+});
