@@ -30,4 +30,8 @@ export class EventsService {
   public findAll(): Event[] {
     return [...this.events];
   }
+
+  public findOne(id: string): Event | undefined {
+    return this.events.find((event) => event.id === id);
+  }
 }
