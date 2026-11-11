@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, Query } from '@nestjs/common';
 import { EventsService } from './events.service.js';
 import type { Event } from './event.interface.js';
 
@@ -7,8 +7,8 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get()
-  findAll(): Event[] {
-    return this.eventsService.findAll();
+  findAll(@Query('search') search?: string): Event[] {
+    return this.eventsService.findAll(search);
   }
 
   @Get(':id')

@@ -7,12 +7,19 @@ export type Event = {
     price: number;
 };
 
-export async function getEvents(): Promise<Event[]> {
+export async function getEvents(search?: string): Promise<Event[]> {
     const apiBaseUrl = process.env.API_BASE_URL;
     if (!apiBaseUrl) {
         throw new Error("API_BASE_URL is not configured");
     }
-    const response = await fetch(`${apiBaseUrl}/api/events`, {
+    const normalizedSearch = search?.trim();
+    const params = new URLSearchParams();
+    if (normalizedSearch) {
+        params.append("search", normalizedSearch);
+    }
+    const queryString=params.toString();
+    const url = `${apiBaseUrl}/api/events${queryString ? `?${queryString}` : ""}`;
+    const response = await fetch(url, {
         cache: "no-store",
     });
     if (!response.ok) {

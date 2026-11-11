@@ -7,7 +7,7 @@ import { AppModule } from './../src/app.module.js';
 describe('EventsController (e2e)', () => {
     let app: INestApplication<App>;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
@@ -47,7 +47,28 @@ describe('EventsController (e2e)', () => {
         expect(response.body.message).toBe('Event not found');
     });
 
-    afterEach(async () => {
+    it('GET /api/events with search query returns filtered events', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?search=music')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0].title).toBe('Sunset Music Festival');
+    });
+
+    it('GET /api/events?search=football returns empty array for no matches', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?search=football')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body).toHaveLength(0);
+    });
+
+    afterAll(async () => {
         await app.close();
     });
 });
