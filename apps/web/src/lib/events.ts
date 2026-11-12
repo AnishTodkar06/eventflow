@@ -5,6 +5,10 @@ export type Event = {
     date: string;
     location: string;
     price: number;
+    description: string;
+    category: string;
+    venue: string;
+    imageUrl: string;
 };
 
 export async function getEvents(search?: string): Promise<Event[]> {

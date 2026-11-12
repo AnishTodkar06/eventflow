@@ -10,6 +10,10 @@ export class EventsService {
             date: '2026-12-15',
             location: 'Mumbai',
             price: 999,
+            description: 'Join us for an amazing sunset music festival!',
+            category: 'Music',
+            venue: 'Riverside Arena',
+            imageUrl: '/images/sunset-music-festival.jpg'
         },
         {
             id: 'evt-002',
@@ -17,6 +21,10 @@ export class EventsService {
             date: '2026-12-20',
             location: 'Pune',
             price: 1499,
+            description: 'Join us for an amazing tech innovators conference!',
+            category: 'Technology',
+            venue: 'Pune Convention Center',
+            imageUrl: '/images/tech-conference.jpg'
         },
         {
             id: 'evt-003',
@@ -24,6 +32,10 @@ export class EventsService {
             date: '2027-01-10',
             location: 'Hyderabad',
             price: 499,
+            description: 'Laugh out loud with the best standup comedians!',
+            category: 'Comedy',
+            venue: 'Laugh Lounge',
+            imageUrl: '/images/comedy-night.jpg'
         },
     ];
 

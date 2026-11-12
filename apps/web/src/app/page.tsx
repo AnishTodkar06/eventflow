@@ -12,14 +12,7 @@ async function UpcomingEvents() {
       </h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
-          <EventCard
-            id={event.id}
-            key={event.id}
-            title={event.title}
-            date={event.date}
-            location={event.location}
-            price={event.price}
-          />
+          <EventCard key={event.id} event={event} />
         ))}
       </div>
     </section>
