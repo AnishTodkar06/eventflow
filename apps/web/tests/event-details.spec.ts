@@ -18,7 +18,10 @@ test('user sees a not-found page for an invalid event', async ({ page }) => {
 
 test('user is able to navigate to events page and back to home', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('link', { name: 'Explore Events' }).click();
+    await page
+        .getByRole("main")
+        .getByRole("link", { name: "Explore Events", exact: true })
+        .click();
     await expect(page).toHaveURL('/events');
     await expect(page.getByRole('heading', { name: 'Explore Events' })).toBeVisible();
     const eventCards = page.getByRole("article");
