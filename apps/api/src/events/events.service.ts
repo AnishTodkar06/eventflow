@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Event } from './event.interface.js';
+import type { EventFilters } from './event-filters.interface.js';
 
 @Injectable()
 export class EventsService {
@@ -39,13 +40,14 @@ export class EventsService {
         },
     ];
 
-    public findAll(search?: string): Event[] {
+    public findAll(filters: EventFilters = {}): Event[] {
+        const { search, category } = filters;
         const normalizedSearch = search?.trim().toLowerCase();
-        if (!normalizedSearch) {
-            return [...this.events];
-        }
+        const normalizedCategory = category?.trim().toLowerCase();
+
         return this.events.filter((event) =>
-            event.title.toLowerCase().includes(normalizedSearch)
+            (!normalizedSearch || event.title.toLowerCase().includes(normalizedSearch)) &&
+            (!normalizedCategory || event.category.toLowerCase()===(normalizedCategory))
         );
     }
 

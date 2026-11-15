@@ -23,10 +23,23 @@ describe('EventsController (e2e)', () => {
             .expect(200)
             .expect('Content-Type', /json/);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body).toHaveLength(3);
-        expect(response.body[0].id).toBe('evt-001');
-        expect(response.body[0].title).toBe('Sunset Music Festival');
+        const body: unknown = response.body;
+
+        expect(Array.isArray(body)).toBe(true);
+        expect(body).toMatchObject([
+            {
+                id: 'evt-001',
+                title: 'Sunset Music Festival',
+            },
+            {
+                id: 'evt-002',
+                title: 'Tech Innovators Conference',
+            },
+            {
+                id: 'evt-003',
+                title: 'Standup Comedy Night',
+            },
+        ]);
     });
 
     it('GET /api/events/:id returns an existing event', async () => {
@@ -35,16 +48,23 @@ describe('EventsController (e2e)', () => {
             .expect(200)
             .expect('Content-Type', /json/);
 
-        expect(response.body).toBeDefined();
-        expect(response.body.id).toBe('evt-001');
-        expect(response.body.title).toBe('Sunset Music Festival');
+        const body: unknown = response.body;
+
+        expect(body).toMatchObject({
+            id: 'evt-001',
+            title: 'Sunset Music Festival',
+        });
     });
 
     it('GET /api/events/:id returns 404 for a missing event', async () => {
         const response = await request(app.getHttpServer())
             .get('/api/events/non-existent-id')
             .expect(404);
-        expect(response.body.message).toBe('Event not found');
+        const body: unknown = response.body;
+
+        expect(body).toMatchObject({
+            message: 'Event not found',
+        });
     });
 
     it('GET /api/events with search query returns filtered events', async () => {
@@ -53,9 +73,49 @@ describe('EventsController (e2e)', () => {
             .expect(200)
             .expect('Content-Type', /json/);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body).toHaveLength(1);
-        expect(response.body[0].title).toBe('Sunset Music Festival');
+        const body: unknown = response.body;
+
+        expect(Array.isArray(body)).toBe(true);
+        expect(body).toMatchObject([
+            {
+                id: 'evt-001',
+                title: 'Sunset Music Festival',
+            },
+        ]);
+    });
+
+    it('GET /api/events with category query returns filtered events', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?category=Music')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        const body: unknown = response.body;
+
+        expect(Array.isArray(body)).toBe(true);
+        expect(body).toMatchObject([
+            {
+                id: 'evt-001',
+                category: 'Music',
+            },
+        ]);
+    });
+
+    it('GET /api/events with search and category queries applies both filters', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?search=festival&category=Music')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        const body: unknown = response.body;
+
+        expect(Array.isArray(body)).toBe(true);
+        expect(body).toMatchObject([
+            {
+                id: 'evt-001',
+                title: 'Sunset Music Festival',
+            },
+        ]);
     });
 
     it('GET /api/events?search=football returns empty array for no matches', async () => {
@@ -64,8 +124,20 @@ describe('EventsController (e2e)', () => {
             .expect(200)
             .expect('Content-Type', /json/);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body).toHaveLength(0);
+        const body: unknown = response.body;
+
+        expect(body).toEqual([]);
+    });
+
+    it('GET /api/events with conflicting filters returns an empty array', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?search=conference&category=Music')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        const body: unknown = response.body;
+
+        expect(body).toEqual([]);
     });
 
     afterAll(async () => {
