@@ -101,6 +101,27 @@ describe('EventsController (e2e)', () => {
         ]);
     });
 
+    it('GET /api/events with repeated category query returns 400', async () => {
+        await request(app.getHttpServer())
+            .get('/api/events?category=Music&category=Comedy')
+            .expect(400);
+    });
+
+    it('GET /api/events with repeated search query returns 400', async () => {
+        await request(app.getHttpServer())
+            .get('/api/events?search=music&search=tech')
+            .expect(400);
+    });
+
+    it('GET /api/events?category=Sports returns an empty array', async () => {
+        const response = await request(app.getHttpServer())
+            .get('/api/events?category=Sports')
+            .expect(200)
+            .expect('Content-Type', /json/);
+
+        expect(response.body).toEqual([]);
+    });
+
     it('GET /api/events with search and category queries applies both filters', async () => {
         const response = await request(app.getHttpServer())
             .get('/api/events?search=festival&category=Music')
