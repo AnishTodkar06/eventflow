@@ -1,5 +1,6 @@
 import EventCard from "@/components/EventCard";
 import HeroSection from "@/components/home/HeroSection";
+import CategorySection from "@/components/home/CategorySection";
 import { Suspense } from "react";
 import { getEvents } from "@/lib/events";
 
@@ -24,6 +25,7 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8">
       <HeroSection />
+      <CategorySection />
       <Suspense fallback={<p>Loading upcoming events...</p>}>
         <UpcomingEvents />
       </Suspense>
