@@ -2,19 +2,29 @@ import Link from "next/link";
 import { getEvents } from "@/lib/events";
 import EventCard from "@/components/EventCard";
 import { Suspense } from "react";
+import { categories } from "@/lib/categories";
+import { normalizeCategory, normalizeQueryParam } from "@/lib/search-params";
 
 interface EventsPageProps {
     searchParams: Promise<{
-        search?: string;
+        search?: string | string[];
+        category?: string | string[];
     }>;
 }
 async function EventList({ searchParams }: EventsPageProps) {
-    const { search } = await searchParams;
-    const events = await getEvents(search);
+    const params = await searchParams;
+    const search = normalizeQueryParam(params.search);
+    const category = normalizeCategory(params.category);
+    const events = await getEvents({ search, category });
     if (events.length === 0) {
         return (
             <p className="w-full rounded-lg bg-gray-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-gray-800/50 dark:text-gray-400">
-                No events found{search ? ` for “${search}”` : ""}.
+                No events found
+                {search ? ` for “${search}”` : ""}
+                {category
+                    ? `${search ? " in" : " for"} category “${category}”`
+                    : ""}
+                .
             </p>
         );
     }
@@ -28,25 +38,31 @@ async function EventList({ searchParams }: EventsPageProps) {
 }
 
 async function SearchForm({ searchParams }: EventsPageProps) {
-    const { search } = await searchParams;
+    const params = await searchParams;
+    const search = normalizeQueryParam(params.search);
+    const category = normalizeCategory(params.category);
+    const isUnknownCategory =
+        category !== undefined &&
+        !categories.some((categoryOption) => categoryOption.name === category);
     return (
-        <form
-            action="/events"
-            method="GET"
-            role="search"
-            className="flex w-full max-w-2xl flex-col gap-3 sm:flex-row"
-        >
-            <label htmlFor="event-search" className="sr-only">
-                Search events
-            </label>
+        <>
+            <form
+                action="/events"
+                method="GET"
+                role="search"
+                className="flex w-full max-w-2xl flex-col gap-3 sm:flex-row"
+            >
+                <label htmlFor="event-search" className="sr-only">
+                    Search events
+                </label>
 
-            <input
-                id="event-search"
-                type="search"
-                name="search"
-                placeholder="Search concerts, conferences, comedy..."
-                className="
-      w-full flex-1 rounded-xl border border-zinc-300
+                <input
+                    id="event-search"
+                    type="search"
+                    name="search"
+                    placeholder="Search concerts, conferences, comedy..."
+                    className="
+      w-full min-w-0 flex-1 rounded-xl border border-zinc-300
       bg-white px-4 py-3 text-sm text-zinc-900
       placeholder:text-zinc-400
       outline-none transition
@@ -54,22 +70,63 @@ async function SearchForm({ searchParams }: EventsPageProps) {
       dark:border-zinc-700 dark:bg-zinc-900
       dark:text-white dark:placeholder:text-zinc-500
     "
-                defaultValue={search ?? ""}
-            />
+                    defaultValue={search ?? ""}
+                />
 
-            <button
-                type="submit"
-                className="
-      rounded-xl bg-violet-600 px-6 py-3
+                <label htmlFor="event-category" className="sr-only">
+                    Category
+                </label>
+                <select
+                    key={category ?? ""}
+                    id="event-category"
+                    name="category"
+                    defaultValue={category ?? ""}
+                    className="
+      w-full shrink-0 rounded-xl border border-zinc-300
+      bg-white px-4 py-3 text-sm text-zinc-900
+      outline-none transition
+      focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20
+      dark:border-zinc-700 dark:bg-zinc-900 dark:text-white
+      sm:w-auto sm:max-w-48
+    "
+                >
+                    <option value="">
+                        All categories
+                    </option>
+                    {isUnknownCategory && (
+                        <option value={category}>
+                            {category} (unknown category)
+                        </option>
+                    )}
+                    {categories.map((categoryOption) => (
+                        <option key={categoryOption.name} value={categoryOption.name}>
+                            {categoryOption.name}
+                        </option>
+                    ))}
+                </select>
+
+                <button
+                    type="submit"
+                    className="
+      shrink-0 rounded-xl bg-violet-600 px-6 py-3
       text-sm font-semibold text-white
       transition-colors hover:bg-violet-700
       focus-visible:outline-2 focus-visible:outline-offset-2
       focus-visible:outline-violet-500
     "
-            >
-                Search Events
-            </button>
-        </form>
+                >
+                    Search Events
+                </button>
+            </form>
+            {(search || category) && (
+                <Link
+                    href="/events"
+                    className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
+                >
+                    Clear all filters
+                </Link>
+            )}
+        </>
     );
 }
 

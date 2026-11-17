@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-test("should display the EventFlow Welcome heading", async ({ page }) => {
+test("should display the homepage hero heading", async ({ page }) => {
     await page.goto("/");
     await expect(
-        page.getByRole("heading", { name: "Welcome to EventFlow" })
+        page.getByRole("heading", { name: "Discover moments worth experiencing." })
     ).toBeVisible();
 });
 

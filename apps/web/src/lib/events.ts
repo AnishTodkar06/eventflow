@@ -11,17 +11,30 @@ export type Event = {
     imageUrl: string;
 };
 
-export async function getEvents(search?: string): Promise<Event[]> {
+export interface EventFilters {
+    search?: string;
+    category?: string;
+}
+
+export async function getEvents(
+    filters: EventFilters = {}
+): Promise<Event[]> {
     const apiBaseUrl = process.env.API_BASE_URL;
     if (!apiBaseUrl) {
         throw new Error("API_BASE_URL is not configured");
     }
+    const { search, category } = filters;
     const normalizedSearch = search?.trim();
+    const normalizedCategory = category?.trim();
     const params = new URLSearchParams();
     if (normalizedSearch) {
-        params.append("search", normalizedSearch);
+        params.set("search", normalizedSearch);
     }
-    const queryString=params.toString();
+
+    if (normalizedCategory) {
+        params.set("category", normalizedCategory);
+    }
+    const queryString = params.toString();
     const url = `${apiBaseUrl}/api/events${queryString ? `?${queryString}` : ""}`;
     const response = await fetch(url, {
         cache: "no-store",
